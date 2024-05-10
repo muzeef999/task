@@ -9,13 +9,9 @@ import {
 } from "@mui/material";
 import { css } from "@emotion/react";
 import axios from "axios";
-import { useState } from "react";
-import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
-import "react-toastify/dist/ReactToastify.css";
 
+import { useState } from "react";
 export default function Home() {
-  const Router = useRouter();
   const containerStyle = css`
     display: flex;
     justify-content: center;
@@ -38,6 +34,7 @@ export default function Home() {
     username: "",
     // Add more fields as needed
   });
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,57 +47,35 @@ export default function Home() {
 
   const handleButtonClick = (e) => {
     e.preventDefault();
-    if (
-      formData.firstName &&
-      formData.lastName &&
-      formData.email &&
-      formData.password &&
-      formData.username &&
-      formData.phoneNumber
-    ) {
+    if (formData.email && formData.password) {
       axios
-        .post("/api/signup", formData)
+        .post("http://localhost:3000/api/signin", formData)
         .then((res) => {
           console.log(res);
         })
         .catch((err) => {
           console.log(err.response.data);
         });
-      toast.success("Register Succesfull");
-      Router.push("/dashboard");
     } else {
-      alert("plese fill all inputs");
+    }
+    const errors = {};
+    // Check if any field is empty
+    if (!formData.email) errors.email = "Please fill in this field";
+    if (!formData.password) errors.password = "Please fill in this field";
+
+    setErrors(errors);
+
+    if (Object.keys(errors).length === 0) {
+      console.log(formData); // Submit form if no errors
     }
   };
   return (
-    <div css={containerStyle} className="box1">
-      <Card css={cardStyle} className="box">
+    <div css={containerStyle} className="box">
+      <Card css={cardStyle}>
         <CardContent>
           <h1 style={{ textAlign: "center" }}>SignUp</h1>
           <form required={true}>
             <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  id="first-name"
-                  label="First name"
-                  variant="outlined"
-                  name="firstName"
-                  fullWidth
-                  onChange={handleChange}
-                  value={formData.firstName}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  id="last-name"
-                  label="Last name"
-                  variant="outlined"
-                  name="lastName"
-                  fullWidth
-                  onChange={handleChange}
-                  value={formData.lastName}
-                />
-              </Grid>
               <Grid item xs={12}>
                 <TextField
                   id="email"
@@ -111,6 +86,9 @@ export default function Home() {
                   onChange={handleChange}
                   value={formData.email}
                 />
+                 {errors.email && (
+                  <span style={{ color: "red" }}>please fill this filled</span>
+                )}
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -123,29 +101,9 @@ export default function Home() {
                   onChange={handleChange}
                   value={formData.password}
                 />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  id="phone-number"
-                  label="Phone number"
-                  variant="outlined"
-                  name="phoneNumber"
-                  fullWidth
-                  required={true}
-                  onChange={handleChange}
-                  value={formData.phoneNumber}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  id="username"
-                  label="Username"
-                  variant="outlined"
-                  fullWidth
-                  name="username"
-                  onChange={handleChange}
-                  value={formData.username}
-                />
+                {errors.password && (
+                  <span style={{ color: "red" }}>please fill this filled</span>
+                )}
               </Grid>
               <Grid item xs={12}>
                 <Button
